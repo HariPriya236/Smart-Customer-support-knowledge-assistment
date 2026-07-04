@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.venv
+.env
+.env.example
+
+# Node/React
+node_modules/
+dist/
+dist-ssr/
+*.local
+.eslintcache
+.yarn-clean
+
+# DB / Vectors
+supportiq.db
+chroma_db/
+chroma_data/
+postgres_data/
+
+# OS/System
+.DS_Store
+Thumbs.db
+
+# Logs & Debug
+*.log
+test_imports.py
+test_llm.py
+.system_generated/

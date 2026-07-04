@@ -1,0 +1,32 @@
+services:
+  # Backend Web Service (FastAPI + LangGraph)
+  - type: web
+    name: supportiq-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DEFAULT_LLM_PROVIDER
+        value: gemini
+      - key: EMBEDDING_PROVIDER
+        value: huggingface
+      - key: DATABASE_URL
+        value: sqlite:////data/supportiq.db
+      - key: CHROMA_PERSIST_DIR
+        value: /data/chroma_db
+      - key: GEMINI_API_KEY
+        sync: false # Will be set by the user in the Render Dashboard
+    disk:
+      name: supportiq-data
+      mountPath: /data
+      sizeGB: 1
+
+  # Frontend Static Site (React + Vite)
+  - type: static
+    name: supportiq-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://supportiq-backend.onrender.com/api # Replace with your actual backend URL on Render
