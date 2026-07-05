@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { QueryResponseData, DocumentItem, AnalyticsData, LLMProvider } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://smart-customer-support-knowledge.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -55,7 +55,7 @@ export const uploadDocument = async (file: File, category: string): Promise<Docu
   formData.append('doc_category', category);
 
   try {
-    const res = await axios.post('/api/upload', formData, {
+    const res = await api.post('/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return res.data;

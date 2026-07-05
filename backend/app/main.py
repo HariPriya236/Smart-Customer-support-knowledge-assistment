@@ -42,6 +42,15 @@ app.include_router(history.router, prefix=settings.API_V1_STR)
 app.include_router(analytics.router, prefix=settings.API_V1_STR)
 app.include_router(documents.router, prefix=settings.API_V1_STR)
 
+@app.get("/")
+def root():
+    return {
+        "status": "online",
+        "message": "Welcome to SupportIQ API - Smart Customer Support Knowledge Assistant",
+        "docs_url": "/docs",
+        "health_check": "/health"
+    }
+
 @app.get("/health")
 def health_check():
     return {
@@ -53,4 +62,4 @@ def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
