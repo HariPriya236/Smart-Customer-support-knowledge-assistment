@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { QueryResponseData, DocumentItem, AnalyticsData, LLMProvider } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://smart-customer-support-knowledge.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
