@@ -56,7 +56,7 @@ if os.path.exists(static_dir) and os.path.exists(os.path.join(static_dir, "index
 elif os.path.exists(frontend_dist) and os.path.exists(os.path.join(frontend_dist, "index.html")):
     target_static = frontend_dist
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health_check():
     return {
         "status": "healthy",
@@ -70,11 +70,11 @@ if target_static:
     if os.path.exists(assets_path):
         app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
 
-    @app.get("/")
+    @app.api_route("/", methods=["GET", "HEAD"])
     def serve_index():
         return FileResponse(os.path.join(target_static, "index.html"))
 
-    @app.get("/{full_path:path}")
+    @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
     def serve_react_spa(full_path: str):
         if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("openapi.json") or full_path.startswith("health"):
             raise HTTPException(status_code=404, detail="Not Found")
@@ -83,7 +83,7 @@ if target_static:
             return FileResponse(file_path)
         return FileResponse(os.path.join(target_static, "index.html"))
 else:
-    @app.get("/")
+    @app.api_route("/", methods=["GET", "HEAD"])
     def root():
         return {
             "status": "online",
