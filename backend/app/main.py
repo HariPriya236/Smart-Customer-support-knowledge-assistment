@@ -42,14 +42,19 @@ app.include_router(history.router, prefix=settings.API_V1_STR)
 app.include_router(analytics.router, prefix=settings.API_V1_STR)
 app.include_router(documents.router, prefix=settings.API_V1_STR)
 
-@app.get("/")
-def root():
-    return {
-        "status": "online",
-        "message": "Welcome to SupportIQ API - Smart Customer Support Knowledge Assistant",
-        "docs_url": "/docs",
-        "health_check": "/health"
-    }
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from fastapi import HTTPException
+
+# Determine static frontend directory location
+static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "static"))
+frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
+
+target_static = None
+if os.path.exists(static_dir) and os.path.exists(os.path.join(static_dir, "index.html")):
+    target_static = static_dir
+elif os.path.exists(frontend_dist) and os.path.exists(os.path.join(frontend_dist, "index.html")):
+    target_static = frontend_dist
 
 @app.get("/health")
 def health_check():
@@ -59,6 +64,33 @@ def health_check():
         "llm_provider": settings.DEFAULT_LLM_PROVIDER,
         "vector_store": settings.VECTOR_DB_TYPE
     }
+
+if target_static:
+    assets_path = os.path.join(target_static, "assets")
+    if os.path.exists(assets_path):
+        app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
+
+    @app.get("/")
+    def serve_index():
+        return FileResponse(os.path.join(target_static, "index.html"))
+
+    @app.get("/{full_path:path}")
+    def serve_react_spa(full_path: str):
+        if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("openapi.json") or full_path.startswith("health"):
+            raise HTTPException(status_code=404, detail="Not Found")
+        file_path = os.path.join(target_static, full_path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(target_static, "index.html"))
+else:
+    @app.get("/")
+    def root():
+        return {
+            "status": "online",
+            "message": "Welcome to SupportIQ API - Smart Customer Support Knowledge Assistant",
+            "docs_url": "/docs",
+            "health_check": "/health"
+        }
 
 if __name__ == "__main__":
     import uvicorn
